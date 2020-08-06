@@ -27,17 +27,17 @@ class Window1:
         self.Username = StringVar()
         self.Password = StringVar()
 
-        self.LabelTitle = Label(self.frame,text = "PHARMACY MANAGEMENT SYSTEM",font = ('arial',50,'bold'),bd = 20,bg = 'powder blue')
+        self.LabelTitle = Label(self.frame,text = "CHEMIST INVENTORY SYSTEM",font = ('arial',50,'bold'),bd = 20,bg = 'powder blue')
         self.LabelTitle.grid(row = 0,column = 0,columnspan = 2,pady = 20)
 
-        self.LoginFrame1 = Frame(self.frame, width = 1010,height = 300,relief = 'ridge',bg = 'powder blue')
-        self.LoginFrame1.grid(row = 1, column = 0)
+        self.LoginFrame1 = Frame(self.frame, width = 1010,height = 300,relief = 'flat',bg = 'powder blue')
+        self.LoginFrame1.grid(row = 1, column = 0, pady = 20)
 
-        self.LoginFrame2 = Frame(self.frame, width = 1010,height = 100,bd = 20,relief = 'ridge',bg = 'powder blue')
-        self.LoginFrame2.grid(row = 2, column = 0)
+        self.LoginFrame2 = Frame(self.frame, width = 1010,height = 100,bd = 10,relief = 'ridge',bg = 'powder blue')
+        self.LoginFrame2.grid(row = 5, column = 0,pady = 20)
 
-        self.LoginFrame3 = Frame(self.frame, width = 1010,height = 200,bd = 20,relief = 'ridge',bg = 'powder blue')
-        self.LoginFrame3.grid(row = 3, column = 0)
+        self.LoginFrame3 = Frame(self.frame, width = 1010,height = 200,bd = 10,relief = 'ridge',bg = 'powder blue')
+        self.LoginFrame3.grid(row = 9, column = 0)
 
 #============================USERNAME AND PASSWORD ==============================================================================
 
@@ -46,11 +46,11 @@ class Window1:
         self.lblUsername = Label(self.LoginFrame1,text = "Username",font = ('arial',30,'bold'),bd = 22,bg = 'powder blue')
         self.lblUsername.grid(row = 0,column = 0)
         self.txtUsername = Entry(self.LoginFrame1,font = ('arial',30,'bold'),textvariable = self.Username,bd = 22)
-        self.txtUsername.grid(row = 0,column = 1)
+        self.txtUsername.grid(row = 0,column = 1,pady = 10)
 
         self.lblpassword = Label(self.LoginFrame1,text = "Password",font = ('arial',30,'bold'),bd = 22,bg = 'powder blue')
         self.lblpassword.grid(row = 1,column = 0)
-        self.txtpassword = Entry(self.LoginFrame1,font = ('arial',30,'bold'),textvariable = self.Password,show = "*",bd = 22)
+        self.txtpassword = Entry(self.LoginFrame1,font = ('arial',30,'bold'),textvariable = self.Password,show = ".",bd = 22)
         self.txtpassword.grid(row = 1,column = 1,padx = 85)
 
 
@@ -68,13 +68,13 @@ class Window1:
         self.btnexit = Button(self.LoginFrame2,text = "Exit",width = 17,font = ('arial',20,'bold'),command = self.iexit)
         self.btnexit.grid(row = 0, column = 2)
 
-        self.btnAdd = Button(self.LoginFrame3,text = "Add new stock",state = DISABLED,width = 17,font = ('arial',20,'bold'),command =self.Adding_product)
+        self.btnAdd = Button(self.LoginFrame3,text = "Add new stock",state = DISABLED,width = 15,font = ('arial',20,'bold'),command =self.Adding_product)
         self.btnAdd.grid(row = 0, column = 0)
 
-        self.btnBill = Button(self.LoginFrame3,text = "New bill",state = DISABLED,width = 17,font = ('arial',20,'bold'),command =self.print_bill)
+        self.btnBill = Button(self.LoginFrame3,text = "New bill",state = DISABLED,width = 15,font = ('arial',20,'bold'),command =self.print_bill)
         self.btnBill.grid(row = 0, column = 1)
 
-        self.btnStock = Button(self.LoginFrame3,text = "Check stock",state = DISABLED,width = 17,font = ('arial',20,'bold'),command = self.stock_check)
+        self.btnStock = Button(self.LoginFrame3,text = "Check stock",state = DISABLED,width = 15,font = ('arial',20,'bold'),command = self.stock_check)
         self.btnStock.grid(row = 0, column = 2)
 
 
@@ -191,14 +191,14 @@ class Window2:
         self.lblEXP = Label(self.AddFrame,text = "Product EXP",font = ('arial',25,'bold'),bd = 22,bg = 'powder blue')
         self.lblEXP.grid(row = 5,column = 0)
         self.txtEXP = Entry(self.AddFrame,font = ('arial',25,'bold'),textvariable = self.Product_EXP,bd = 22)
-        self.txtEXP.grid(row = 5,column = 1)
+        self.txtEXP.grid(row = 5,column = 1,pady = 10)
 
 
 #===================================ADD WINDOW BUTTON==========================================================================
 
 
 
-        self.btnADD = Button(self.AddFrame,text = "ADD",width = 17,bd = 10,font = ('arial',20,'bold'),command = self.addbtn)
+        self.btnADD = Button(self.AddFrame,text = "ADD",width = 15,bd = 10,font = ('arial',20,'bold'),command = self.addbtn)
         self.btnADD.grid(row = 6,column = 3)
 
 
@@ -214,17 +214,36 @@ class Window2:
         price = (self.Product_price.get())
         MFD = (self.Product_MFD.get())
         exp = (self.Product_EXP.get())
+        a = []
         if ide ==  None or name ==  None or qty ==  0 or price ==  0 or MFD ==  None or exp ==  None:
             tkinter.messagebox.showerror(" NEW PRODUCT ADDITION ","You haven't entered all the details")
         else:
-            query = "INSERT INTO PRODUCT (Product_id, Product_name, Product_qty, product_price, Product_MFD, Product_Exp) VALUES('{}','{}','{}','{}','{}','{}')".format(ide,name,qty,price,MFD,exp)
+            query = 'SELECT Product_id from STOCK'
             try:
-                conn = pymysql.connect("sql12.freemysqlhosting.net","sql12355224", "VxJFT4rtvs","sql12355224")
+              
+                conn = pymysql.connect(host="localhost",user="root", passwd="deepak@123",database="pharmacy")
                 with conn:
                     with conn.cursor() as cur:
                         cur.execute(query)
+                        value = cur.fetchall()
+                        for i in value:
+                            for j in i:
+                                a.append(j)
+
+                        if ide not in a:
+                            query1 = "INSERT INTO STOCK (Product_id, Product_name, Product_qty, product_price,Product_MFD,Product_Exp) VALUES('{}','{}',{},'{}','{}','{}')".format(ide,name,qty,price,MFD,exp)
+                            cur.execute(query1)
+                        else:
+                            query2 = "SELECT Product_qty from STOCK WHERE Product_id = '{}'".format(ide)
+                            cur.execute(query2)
+                            ans = cur.fetchone()
+                            qty += ans[0]
+                            query3 = "UPDATE STOCK SET Product_qty = {} WHERE Product_id = '{}'".format(qty,ide)
+                            cur.execute(query3)
             except Exception as e:
                 tkinter.messagebox.showerror(" NEW PRODUCT ADDITION ",e)
+
+
 
 
             
@@ -248,6 +267,7 @@ class Window3:
         self.master.geometry('1350x750+0+0')
         self.master.config(bg = 'powder blue')
 
+        self.Product_id = IntVar()
         self.name = StringVar()
         self.phone = IntVar()
         self.doc = StringVar()
@@ -273,7 +293,7 @@ class Window3:
 
         self.pdtlbl = Label(self.framere,text = " PRODUCT ID ",font = ('arial',15,'bold'),bg = 'powder blue')
         self.pdtlbl.grid(row = 0,column = 0,pady = 5,padx = 5)
-        self.pdttxt = Entry(self.framere,textvariable = self.Product_nam,font = ('arial',10,'bold'),bd = 5,relief = 'ridge')
+        self.pdttxt = Entry(self.framere,textvariable = self.Product_id,font = ('arial',10,'bold'),bd = 5,relief = 'ridge')
         self.pdttxt.grid(row = 0,column = 1,pady = 5,padx = 5)
 
         self.pdtqlbl = Label(self.framere,text = " PRODUCT QTY ",font = ('arial',15,'bold'),bg = 'powder blue')
@@ -348,9 +368,25 @@ class Window3:
         if self.Product_qt.get() == 0:
             tkinter.messagebox.showerror(" BILL WINDOW ","You haven't entered the quantity")
         else:
-            self.billsTV.insert("", 'end',text = self.Product_nam.get(), values =('50', self.Product_qt.get(),'250'))
-            self.Product_nam.set("")
-            self.Product_qt.set("")
+            qty = self.Product_qt.get()
+            ide = self.Product_id.get()
+            query = "SELECT Product_name,Product_price FROM STOCK WHERE Product_id = '{}'".format(ide)
+            try:
+                conn = pymysql.connect(host = "localhost",user = "root",passwd = "deepak@123",database = "pharmacy")
+                with conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query)
+                        value = cur.fetchone()
+                self.billsTV.insert("", 'end',text = value[0] , values =( value[1],qty, value[1]*qty))
+                self.Product_id.set("")
+                self.Product_qt.set("")
+                self.pdttxt.focus()
+
+            except Exception as e:
+                tkinter.messagebox.showerror(" NEW PRODUCT ADDITION ",e)
+            
+
+            
 
     def remove_item(self):
         selected_items = self.billsTV.selection()        
@@ -419,9 +455,9 @@ class Window5:
 
     
     def print_stock(self):
-            query = "SELECT * FROM PRODUCT"
+            query = "SELECT * FROM STOCK"
             try:
-                conn = pymysql.connect("sql12.freemysqlhosting.net","sql12355224", "VxJFT4rtvs","sql12355224")
+                conn = pymysql.connect(host="localhost",user="root", passwd="deepak@123",database="pharmacy")
                 with conn:
                     with conn.cursor() as cur:
                         cur.execute(query)
