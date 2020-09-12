@@ -92,7 +92,7 @@ class Window1:
             
 
         else:
-            tkinter.messagebox.askokcancel("PHARMACY MANAGEMENT SYSTEM","You have entered the invalid login details")
+            tkinter.messagebox.askokcancel("CHEMIST INVENTORY SYSTEM","You have entered the invalid login details")
             self.Username.set("")
             self.Password.set("")
             self.txtUsername.focus()
@@ -108,7 +108,7 @@ class Window1:
 
     
     def iexit(self):
-        self.iexit = tkinter.messagebox.askyesno("PHARMACY MANAGEMENT SYSTEM","Do you really want to exit!")
+        self.iexit = tkinter.messagebox.askyesno("CHEMIST INVENTORY SYSTEM","Do you really want to exit!")
         if self.iexit > 0:
             self.master.destroy()
             return
@@ -147,10 +147,7 @@ class Window2:
         self.Product_name = StringVar()
         self.Product_qty = IntVar()
         self.Product_price = IntVar()
-        self.Product_MFD = StringVar()
-        self.Product_MFD.set(time.strftime("%Y/%m/%d"))
-        self.Product_EXP = StringVar()
-        self.Product_EXP.set(time.strftime("%Y/%m/%d"))
+    
 
 
 
@@ -183,15 +180,6 @@ class Window2:
         self.txtprice = Entry(self.AddFrame,font = ('arial',25,'bold'),textvariable = self.Product_price,bd = 22)
         self.txtprice.grid(row = 3,column = 1)
 
-        self.lblMFD = Label(self.AddFrame,text = "Product MFD",font = ('arial',25,'bold'),bd = 22,bg = 'powder blue')
-        self.lblMFD.grid(row = 4,column = 0)
-        self.txtMFD = Entry(self.AddFrame,font = ('arial',25,'bold'),textvariable = self.Product_MFD,bd = 22)
-        self.txtMFD.grid(row = 4,column = 1)
-
-        self.lblEXP = Label(self.AddFrame,text = "Product EXP",font = ('arial',25,'bold'),bd = 22,bg = 'powder blue')
-        self.lblEXP.grid(row = 5,column = 0)
-        self.txtEXP = Entry(self.AddFrame,font = ('arial',25,'bold'),textvariable = self.Product_EXP,bd = 22)
-        self.txtEXP.grid(row = 5,column = 1,pady = 10)
 
 
 #===================================ADD WINDOW BUTTON==========================================================================
@@ -212,10 +200,8 @@ class Window2:
         name = (self.Product_name.get())
         qty = (self.Product_qty.get())
         price = (self.Product_price.get())
-        MFD = (self.Product_MFD.get())
-        exp = (self.Product_EXP.get())
         a = []
-        if ide ==  None or name ==  None or qty ==  0 or price ==  0 or MFD ==  None or exp ==  None:
+        if ide ==  None or name ==  None or qty ==  0 or price ==  0:
             tkinter.messagebox.showerror(" NEW PRODUCT ADDITION ","You haven't entered all the details")
         else:
             query = 'SELECT Product_id from STOCK'
@@ -231,7 +217,7 @@ class Window2:
                                 a.append(j)
 
                         if ide not in a:
-                            query1 = "INSERT INTO STOCK (Product_id, Product_name, Product_qty, product_price,Product_MFD,Product_Exp) VALUES('{}','{}',{},'{}','{}','{}')".format(ide,name,qty,price,MFD,exp)
+                            query1 = "INSERT INTO STOCK (Product_id, Product_name, Product_qty, product_price) VALUES('{}','{}',{},'{}')".format(ide,name,qty,price)
                             cur.execute(query1)
                         else:
                             query2 = "SELECT Product_qty from STOCK WHERE Product_id = '{}'".format(ide)
@@ -251,8 +237,6 @@ class Window2:
             self.Product_name.set("")
             self.Product_qty.set("")
             self.Product_price.set("")
-            self.Product_MFD.set(time.strftime("%Y/%m/%d"))
-            self.Product_EXP.set(time.strftime("%Y/%m/%d"))
             self.txtid.focus()
 
 
@@ -327,16 +311,12 @@ class Window3:
 
 
 
-        self.btnprint = Button(self.frame2,text = "PRINT BILL",width = 10,font = ('arial',10,'bold'),command = self.printbill)
-        self.btnprint.grid(row = 0, column = 11,padx = 50)
-
         self.btnADD = Button(self.framere,text = "ADD",width = 7,font = ('arial',10,'bold'),command = self.addbtn2)
         self.btnADD.grid(row = 7,column = 2)
         
         self.btnDEL = Button(self.framere,text = "REMOVE",width = 7,font = ('arial',10,'bold'),command = self.remove_item)
         self.btnDEL.grid(row = 10,column = 2)
 
-        
 
 #====================================TREEVIEW AND BILL DISPLAY====================================================================
 
@@ -395,19 +375,6 @@ class Window3:
 
 
 
-#====================================FINAL BILL WINDOW====================================================================
-
-
-class Window4:
-    def __init__(self,master):
-        self.master = master
-        self.master.title("Print a bill")
-        self.master.geometry('1350x750+0+0')
-        self.master.config(bg = 'powder blue')
-
-
-
-
 #====================================STOCK WINDOW====================================================================
 
 
@@ -429,9 +396,9 @@ class Window5:
         self.LabelTitle.pack(fill = X)
 
         self.framepr = LabelFrame(self.master,text = 'Stock Details',bg = 'powder blue',font = ('arial',15,'bold'))
-        self.framepr.place(x = 3, y= 100,width = 1220,height = 520)
+        self.framepr.place(x = 290, y= 100,width = 820,height = 500)
 
-        self.stockTV = ttk.Treeview(self.framepr,height=20, columns=('Rate','Quantity','Cost','mfd','exp'))
+        self.stockTV = ttk.Treeview(self.framepr,height=20, columns=('Rate','Quantity','Cost'))
         
         self.stockTV.grid(row=5, column=0, columnspan=5,padx = 5)
 
@@ -444,11 +411,10 @@ class Window5:
         self.stockTV.heading('#1',text="PRODUCT NAME")
         self.stockTV.heading('#2',text="QUANTITY")
         self.stockTV.heading('#3',text="PRICE")
-        self.stockTV.heading('#4',text="MANUFACTURING DATE")
-        self.stockTV.heading('#5',text="EXPIRY DATE")
+    
 
         self.btncheck = Button(self.framepr,text = "CHECK",width = 7,font = ('arial',10,'bold'),command = self.print_stock)
-        self.btncheck.grid(row = 6,column = 4 )
+        self.btncheck.grid(row =10,column = 4 )
 
 
 #====================================STOCK WINDOW CHECK BUTTON====================================================================
@@ -466,7 +432,7 @@ class Window5:
                             #print(row)
                             self.stockTV.insert("",'end',text = row[0],values = row[1:])
             except Exception as e:
-                tkinter.messagebox.showerror(" NEW PRODUCT ADDITION ",e)
+                tkinter.messagebox.showerror(" STOCK ",e)
             
 
 
