@@ -253,7 +253,7 @@ class Window3:
 
         self.Product_id = IntVar()
         self.name = StringVar()
-        self.phone = IntVar()
+        self.phone = StringVar()
         self.doc = StringVar()
         self.docadd = StringVar()
         self.Product_nam = StringVar()
@@ -270,10 +270,10 @@ class Window3:
         self.frame2.place(x = 0, y= 80, relwidth = 1)
 
         self.framepr = LabelFrame(self.master,text = 'BILL',bg = 'powder blue',font = ('arial',15,'bold'))
-        self.framepr.place(x = 5, y= 170,width = 820,height = 500)
+        self.framepr.place(x = 5, y= 170,width = 850,height = 500)
 
         self.framere = LabelFrame(self.master,text = 'BILL DETAILS',bg = 'powder blue',font = ('arial',15,'bold'))
-        self.framere.place(x = 850,y = 170,height = 250, width = 460)
+        self.framere.place(x = 900,y = 170,height = 230, width = 430)
 
         self.pdtlbl = Label(self.framere,text = " PRODUCT ID ",font = ('arial',15,'bold'),bg = 'powder blue')
         self.pdtlbl.grid(row = 0,column = 0,pady = 5,padx = 5)
@@ -305,6 +305,9 @@ class Window3:
         self.dctaddtxt = Entry(self.frame2,textvariable = self.docadd,font = ('arial',10,'bold'),bd = 5,relief = 'ridge')
         self.dctaddtxt.grid(row = 0,column = 7,pady = 5)
 
+        self.printbill = Button(self.frame2,text="Print Bill",font=("arial",10,"bold"),command = self.printbill2)
+        self.printbill.grid(row = 0,column=10,padx = 5)
+
 
 
 #====================================BILL WINDOW BUTTONS====================================================================
@@ -321,7 +324,7 @@ class Window3:
 #====================================TREEVIEW AND BILL DISPLAY====================================================================
 
 
-        self.billsTV = ttk.Treeview(self.framepr,height=21, columns=('Rate','Quantity','Cost'))
+        self.billsTV = ttk.Treeview(self.framepr,height=22, columns=('Rate','Quantity','Cost',"id"))
         
         self.billsTV.grid(row=5, column=0, columnspan=5,padx = 5)
 
@@ -331,25 +334,44 @@ class Window3:
         self.billsTV.configure(yscrollcommand=self.scrollBar.set)
 
         self.billsTV.heading('#0',text="PRODUCT NAME")
-        self.billsTV.heading('#1',text="PRICE")
-        self.billsTV.heading('#2',text="QUANTITY")
-        self.billsTV.heading('#3',text="COST")
+        self.billsTV.column("#0",minwidth=0,width=164,stretch=NO)
+        self.billsTV.heading("#1",text="PRODUCT ID")
+        self.billsTV.column("#1",minwidth=0,width=164,stretch=NO)
+        self.billsTV.heading('#2',text="PRICE")
+        self.billsTV.column("#2",minwidth=0,width=164,stretch=NO)
+        self.billsTV.heading('#3',text="QUANTITY")
+        self.billsTV.column("#3",minwidth=0,width=164,stretch=NO)
+        self.billsTV.heading('#4',text="COST")
+        self.billsTV.column("#4",minwidth=0,width=164,stretch=NO)
 
 
 #====================================BILL WINDOW FUNCTIONS====================================================================
 
 
-    def printbill(self):
-        self.newWindow = Toplevel(self.master)
-        self.app = Window4(self.newWindow)
+ 
+
 
 
     def addbtn2(self):
-        if self.Product_qt.get() == 0:
+        qty = (self.Product_qt.get())
+        ide = (self.Product_id.get())
+        query4 = "SELECT Product_qty FROM STOCK WHERE Product_id='{}'".format(ide)
+        try:
+            conn = pymysql.connect(host="localhost",user="root",passwd="deepak@123",database="pharmacy")
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(query4)
+                    ans = cur.fetchone()
+        except Exception as e:
+            print(e)
+
+        if qty == 0:
             tkinter.messagebox.showerror(" BILL WINDOW ","You haven't entered the quantity")
+        elif ans[0]<qty:
+            tkinter.messagebox.showerror("BILL WINDOW","ONLY AVAILABLE STOCK:'{}'".format(ans[0]))
+
         else:
-            qty = self.Product_qt.get()
-            ide = self.Product_id.get()
+
             query = "SELECT Product_name,Product_price FROM STOCK WHERE Product_id = '{}'".format(ide)
             try:
                 conn = pymysql.connect(host = "localhost",user = "root",passwd = "deepak@123",database = "pharmacy")
@@ -357,17 +379,41 @@ class Window3:
                     with conn.cursor() as cur:
                         cur.execute(query)
                         value = cur.fetchone()
-                self.billsTV.insert("", 'end',text = value[0] , values =( value[1],qty, value[1]*qty))
+                self.billsTV.insert("", 'end',text = value[0] , values =(ide,value[1],qty, value[1]*qty))
                 self.Product_id.set("")
                 self.Product_qt.set("")
                 self.pdttxt.focus()
 
             except Exception as e:
-                tkinter.messagebox.showerror(" NEW PRODUCT ADDITION ",e)
-            
+                tkinter.messagebox.showerror(" BILL WINDOW ",e)
 
-            
 
+
+    def printbill2(self):
+        a = []
+        qty = 0
+        summ = 0
+        for line in self.billsTV.get_children():
+            a.append(self.billsTV.item(line)['values'])
+        for i in range(len(a)):
+            query = "SELECT Product_qty from STOCK WHERE Product_id = '{}'".format(a[i][0])
+            try :
+                conn = pymysql.connect(host="localhost",user="root",passwd="deepak@123",database="pharmacy")
+                with conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query)
+                        ans = cur.fetchone()
+                        qty = ans[0]
+                        qty -= a[i][2]
+                        query1  = "UPDATE STOCK SET Product_qty = {} WHERE Product_id = '{}'".format(qty,a[i][0])
+                        cur.execute(query1)
+            except Exception as e:
+                print(e)
+            summ+=a[i][3]
+        tkinter.messagebox.showinfo("BILL","Your Bill: %d '\n' Customer Name: %s '\n' Customer Phone: %s '\n' Doctor Name: %s '\n' Doctor Address: %s"%(summ,self.name.get(),self.phone.get(),self.doc.get(),self.docadd.get()))
+        self.printbill.config(state=DISABLED)
+    
+    
     def remove_item(self):
         selected_items = self.billsTV.selection()        
         for selected_item in selected_items:
@@ -433,8 +479,7 @@ class Window5:
                             self.stockTV.insert("",'end',text = row[0],values = row[1:])
             except Exception as e:
                 tkinter.messagebox.showerror(" STOCK ",e)
-            
-
+            self.btncheck.config(state=DISABLED)
 
 
 
