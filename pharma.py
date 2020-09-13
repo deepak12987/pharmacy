@@ -16,6 +16,9 @@ def main():
 
 
 #================================MAIN WINDOW =================================================================
+
+
+
 class Window1:
     def __init__(self,master):
         self.master = master
@@ -39,6 +42,9 @@ class Window1:
         self.LoginFrame3 = Frame(self.frame, width = 1010,height = 200,bd = 10,relief = 'ridge',bg = 'powder blue')
         self.LoginFrame3.grid(row = 9, column = 0)
 
+
+
+
 #============================USERNAME AND PASSWORD ==============================================================================
 
 
@@ -56,6 +62,7 @@ class Window1:
 
 
 #=======================================BUTTONS ON MAIN WINDOW=============================================================
+
 
 
 
@@ -80,6 +87,7 @@ class Window1:
 
 
 #========================================FUNCTIONS OF BUTTONS===========================================================
+
         
     
     def Login_details(self):
@@ -92,7 +100,7 @@ class Window1:
             
 
         else:
-            tkinter.messagebox.askokcancel("CHEMIST INVENTORY SYSTEM","You have entered the invalid login details")
+            tkinter.messagebox.askokcancel("CHEMIST INVENTORY SYSTEM","You have entered the invalid login details",parent = self.master)
             self.Username.set("")
             self.Password.set("")
             self.txtUsername.focus()
@@ -108,7 +116,7 @@ class Window1:
 
     
     def iexit(self):
-        self.iexit = tkinter.messagebox.askyesno("CHEMIST INVENTORY SYSTEM","Do you really want to exit!")
+        self.iexit = tkinter.messagebox.askyesno("CHEMIST INVENTORY SYSTEM","Do you really want to exit!",parent=self.master)
         if self.iexit > 0:
             self.master.destroy()
             return
@@ -152,6 +160,7 @@ class Window2:
 
 
 #====================================LABELS AND ENTRY FIELDS====================================================================
+
 
 
 
@@ -202,7 +211,7 @@ class Window2:
         price = (self.Product_price.get())
         a = []
         if ide ==  None or name ==  None or qty ==  0 or price ==  0:
-            tkinter.messagebox.showerror(" NEW PRODUCT ADDITION ","You haven't entered all the details")
+            tkinter.messagebox.showerror(" NEW PRODUCT ADDITION ","You haven't entered all the details",parent=self.master)
         else:
             query = 'SELECT Product_id from STOCK'
             try:
@@ -227,7 +236,7 @@ class Window2:
                             query3 = "UPDATE STOCK SET Product_qty = {} WHERE Product_id = '{}'".format(qty,ide)
                             cur.execute(query3)
             except Exception as e:
-                tkinter.messagebox.showerror(" NEW PRODUCT ADDITION ",e)
+                tkinter.messagebox.showerror(" NEW PRODUCT ADDITION ",e,parent=self.master)
 
 
 
@@ -261,7 +270,9 @@ class Window3:
         self.Product_pric = IntVar()
 
 
+
 #====================================LABEL AND ENTRY FIELDS====================================================================
+
 
 
         self.LabelTitle = Label(self.master,text = " BILLING ",font = ('arial',30,'bold'),bg = 'powder blue',pady = 10)
@@ -321,7 +332,9 @@ class Window3:
         self.btnDEL.grid(row = 10,column = 2)
 
 
+
 #====================================TREEVIEW AND BILL DISPLAY====================================================================
+
 
 
         self.billsTV = ttk.Treeview(self.framepr,height=22, columns=('Rate','Quantity','Cost',"id"))
@@ -366,9 +379,9 @@ class Window3:
             print(e)
 
         if qty == 0:
-            tkinter.messagebox.showerror(" BILL WINDOW ","You haven't entered the quantity")
+            tkinter.messagebox.showerror(" BILL WINDOW ","You haven't entered the quantity",parent=self.master)
         elif ans[0]<qty:
-            tkinter.messagebox.showerror("BILL WINDOW","ONLY AVAILABLE STOCK:'{}'".format(ans[0]))
+            tkinter.messagebox.showerror("BILL WINDOW","ONLY AVAILABLE STOCK:'{}'".format(ans[0]),parent=self.master)
 
         else:
 
@@ -385,7 +398,12 @@ class Window3:
                 self.pdttxt.focus()
 
             except Exception as e:
-                tkinter.messagebox.showerror(" BILL WINDOW ",e)
+                tkinter.messagebox.showerror(" BILL WINDOW ",e,parent=self.master)
+
+
+                
+
+#==========================================TO PRINT BILL IN FORM OF MESSAGEBOX==============================================================
 
 
 
@@ -410,10 +428,20 @@ class Window3:
             except Exception as e:
                 print(e)
             summ+=a[i][3]
-        tkinter.messagebox.showinfo("BILL","Your Bill: %d '\n' Customer Name: %s '\n' Customer Phone: %s '\n' Doctor Name: %s '\n' Doctor Address: %s"%(summ,self.name.get(),self.phone.get(),self.doc.get(),self.docadd.get()))
+        tkinter.messagebox.showinfo("BILL","Your Bill: %d '\n' Customer Name: %s '\n' Customer Phone: %s '\n' Doctor Name: %s '\n' Doctor Address: %s"%(summ,self.name.get(),self.phone.get(),self.doc.get(),self.docadd.get()),parent=self.master)
         self.printbill.config(state=DISABLED)
-    
-    
+        self.name.set("")
+        self.phone.set("")
+        self.doc.set("")
+        self.docadd.set("")
+        for i in self.billsTV.get_children():
+            self.billsTV.delete(i)
+
+
+#===================================================REMOVE ITEMS FROM TREEVIEW IF CUSTOMER DOESN'T WANT IT=================================================
+
+
+
     def remove_item(self):
         selected_items = self.billsTV.selection()        
         for selected_item in selected_items:
@@ -465,6 +493,8 @@ class Window5:
 
 #====================================STOCK WINDOW CHECK BUTTON====================================================================
 
+
+
     
     def print_stock(self):
             query = "SELECT * FROM STOCK"
@@ -478,8 +508,9 @@ class Window5:
                             #print(row)
                             self.stockTV.insert("",'end',text = row[0],values = row[1:])
             except Exception as e:
-                tkinter.messagebox.showerror(" STOCK ",e)
+                tkinter.messagebox.showerror(" STOCK ",e,parent=self.master)
             self.btncheck.config(state=DISABLED)
+
 
 
 
